@@ -1,0 +1,95 @@
+import sqlite3
+import datetime
+
+
+#connect to the database
+conn = sqlite3.connect("tasks.db")
+cursor = conn.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY, 
+        task TEXT, 
+        date TEXT, 
+        time TEXT
+    )
+""") #create a table if it does not exist
+conn.commit()
+
+
+# Function to add a task
+def add_task():
+    task =input ("Enter a Task:")
+    date= input("Enter the Date (yyyy-mm-dd): ")
+    time=input("Enter the Time (hh:mm:ss); ")
+
+    cursor.execute("insert into tasks (task, date, time) values (?,?,?)," ( task, date, time))
+    conn.commit()
+    print("Task added successfully!")
+
+
+#function to view all tasks
+
+def view_tasks():
+    cursor.execute("select * from tasks")
+    data = cursor.fetchall()
+    if not data:
+        print("NO task found! please add a task")
+    else:
+        print("Your added tasks are:\n")
+        for row in data:
+            print(row[0],row[1],"Date: ", row[2],"Time: ", row[3], "\n")
+
+
+#funtion to  update a task
+
+def update_task():
+    view_tasks()
+    task_id =input("Enter task id which you want to update: ")
+    new_task = input("Enter new task: ")
+    new_date = input("Enter new date: ")
+    new_time = input("Enter new time: ")
+
+    cursor.execute("update tasks set task=?, date=:?, time=? where id=?", (new_task, new_date, new_time, task_id))
+    conn.commit()
+
+
+print("Task updated successfully!")
+
+#function to delete task
+
+def delete_task():
+    view_tasks()
+    task_id = input("Enter task id which you want to delete: ")
+    cursor.execute("delete from tasks where id=?", (task_id))
+    conn.commit()
+
+    print("Task deleted successfully!")
+
+
+#main function
+
+def main():
+
+    while True:
+        print("1 to add a task")
+        print("2 to view a task")
+        print("3 to update a task")
+        print("4 to delete a task")
+        print("5 to exit")
+
+        responce=input("Enter your choice: ")
+        if responce == "1":
+            add_task()
+        elif responce == "2":
+            view_tasks()
+        elif responce == "3":
+            update_task()
+        elif responce == "4":
+            delete_task()
+        elif responce=="5":
+            conn.close()
+            break
+        else:
+            print("Please enter a valid option")
+        
+main()
